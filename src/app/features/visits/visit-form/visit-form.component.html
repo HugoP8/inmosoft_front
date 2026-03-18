@@ -1,0 +1,51 @@
+<div class="space-y-6 max-w-2xl">
+  <div class="flex items-center gap-4">
+    <a routerLink="/visits" class="text-gray-400 hover:text-gray-600">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+    </a>
+    <h1 class="text-2xl font-bold text-gray-900">Nueva Visita</h1>
+  </div>
+
+  @if (error()) {
+    <div class="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="card space-y-5">
+    <div>
+      <label class="form-label">Lead *</label>
+      <select formControlName="leadId" class="form-input">
+        <option value="">Seleccionar lead...</option>
+        @for (lead of leads(); track lead.id) {
+          <option [value]="lead.id">{{ lead.title }} — {{ lead.client?.firstName }} {{ lead.client?.lastName }}</option>
+        }
+      </select>
+      @if (isInvalid('leadId')) { <p class="form-error">Requerido</p> }
+    </div>
+    <div>
+      <label class="form-label">Propiedad *</label>
+      <select formControlName="propertyId" class="form-input">
+        <option value="">Seleccionar propiedad...</option>
+        @for (prop of properties(); track prop.id) {
+          <option [value]="prop.id">{{ prop.title }} — {{ prop.city }}</option>
+        }
+      </select>
+      @if (isInvalid('propertyId')) { <p class="form-error">Requerido</p> }
+    </div>
+    <div>
+      <label class="form-label">Fecha y Hora *</label>
+      <input type="datetime-local" formControlName="scheduledAt" class="form-input">
+      @if (isInvalid('scheduledAt')) { <p class="form-error">Requerido</p> }
+    </div>
+    <div>
+      <label class="form-label">Notas</label>
+      <textarea formControlName="notes" class="form-input" rows="3" placeholder="Instrucciones, detalles..."></textarea>
+    </div>
+    <div class="flex justify-end gap-3">
+      <a routerLink="/visits" class="btn-secondary">Cancelar</a>
+      <button type="submit" class="btn-primary flex items-center gap-2" [disabled]="saving()">
+        @if (saving()) { <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> }
+        Programar Visita
+      </button>
+    </div>
+  </form>
+</div>

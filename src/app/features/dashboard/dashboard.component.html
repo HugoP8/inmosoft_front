@@ -1,0 +1,147 @@
+@if (loading()) {
+  <div class="flex items-center justify-center h-64">
+    <div class="text-center">
+      <svg class="animate-spin w-8 h-8 text-blue-600 mx-auto mb-3" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+      </svg>
+      <p class="text-gray-500 text-sm">Cargando estadísticas...</p>
+    </div>
+  </div>
+}
+
+@if (!loading() && stats()) {
+  <div class="space-y-6">
+    <!-- Header -->
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+      <p class="text-gray-500 text-sm mt-1">Resumen general de tu inmobiliaria</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <app-stat-card
+        title="Propiedades"
+        [value]="stats()!.totalProperties"
+        [icon]="ICONS.properties"
+        iconBg="bg-blue-100"
+        iconColor="text-blue-600"
+      />
+      <app-stat-card
+        title="Leads Activos"
+        [value]="stats()!.activeLeads"
+        [icon]="ICONS.leads"
+        iconBg="bg-purple-100"
+        iconColor="text-purple-600"
+      />
+      <app-stat-card
+        title="Ventas Totales"
+        [value]="stats()!.totalSales"
+        [icon]="ICONS.sales"
+        iconBg="bg-green-100"
+        iconColor="text-green-600"
+      />
+      <app-stat-card
+        title="Clientes"
+        [value]="stats()!.totalClients"
+        [icon]="ICONS.clients"
+        iconBg="bg-orange-100"
+        iconColor="text-orange-600"
+      />
+    </div>
+
+    <!-- Charts & Pipeline Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Sales by Month -->
+      <div class="card lg:col-span-2">
+        <h3 class="text-base font-semibold text-gray-900 mb-4">Ventas por Mes</h3>
+        @if (stats()!.salesByMonth?.length) {
+          <div class="space-y-3">
+            @for (month of stats()!.salesByMonth; track month.month) {
+              <div class="flex items-center gap-3">
+                <span class="text-xs text-gray-500 w-10 flex-shrink-0">{{ month.month }}</span>
+                <div class="flex-1 bg-gray-100 rounded-full h-2">
+                  <div
+                    class="bg-blue-500 h-2 rounded-full transition-all"
+                    [style.width.%]="(month.total / (stats()!.totalRevenue || 1)) * 100"
+                  ></div>
+                </div>
+                <span class="text-xs font-medium text-gray-700 w-20 text-right">
+                  {{ month.total | currency:'USD':'symbol':'1.0-0' }}
+                </span>
+                <span class="text-xs text-gray-400 w-8">{{ month.count }} vtas</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="text-center py-8 text-gray-400">
+            <p class="text-sm">Sin datos de ventas aún</p>
+          </div>
+        }
+      </div>
+
+      <!-- Leads by Status -->
+      <div class="card">
+        <h3 class="text-base font-semibold text-gray-900 mb-4">Pipeline de Leads</h3>
+        <div class="space-y-3">
+          @for (entry of statusEntries; track entry.key) {
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-gray-600">{{ STATUS_LABELS[entry.key] || entry.key }}</span>
+                <span class="font-medium text-gray-900">{{ entry.value }}</span>
+              </div>
+              <div class="w-full bg-gray-100 rounded-full h-1.5">
+                <div
+                  class="h-1.5 rounded-full"
+                  [class]="STATUS_COLORS[entry.key] || 'bg-gray-400'"
+                  [style.width.%]="totalLeadsByStatus ? (entry.value / totalLeadsByStatus) * 100 : 0"
+                ></div>
+              </div>
+            </div>
+          }
+          @if (!statusEntries.length) {
+            <p class="text-sm text-gray-400 text-center py-4">Sin leads aún</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats Row -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Revenue card -->
+      <div class="card bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+        <p class="text-blue-100 text-sm font-medium">Ingresos Totales</p>
+        <p class="text-3xl font-bold mt-1">{{ stats()!.totalRevenue | currency:'USD':'symbol':'1.0-0' }}</p>
+        <p class="text-blue-200 text-xs mt-2">Comisiones acumuladas</p>
+      </div>
+
+      <!-- Visits card -->
+      <div class="card">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-sm font-medium text-gray-500">Visitas Programadas</p>
+          <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+            <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+        </div>
+        <p class="text-3xl font-bold text-gray-900">{{ stats()!.scheduledVisits }}</p>
+        <a routerLink="/visits" class="text-blue-600 text-xs hover:underline mt-2 block">Ver calendario →</a>
+      </div>
+
+      <!-- Tasks card -->
+      <div class="card">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-sm font-medium text-gray-500">Tareas Pendientes</p>
+          <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+            <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+          </div>
+        </div>
+        <p class="text-3xl font-bold text-gray-900">{{ stats()!.pendingTasks }}</p>
+        <p class="text-gray-400 text-xs mt-2">Requieren atención</p>
+      </div>
+    </div>
+  </div>
+}

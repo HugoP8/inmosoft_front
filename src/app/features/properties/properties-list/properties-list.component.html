@@ -1,0 +1,113 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Propiedades</h1>
+      <p class="text-gray-500 text-sm mt-1">{{ totalItems() }} propiedades registradas</p>
+    </div>
+    <a routerLink="/properties/new" class="btn-primary flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Nueva Propiedad
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="card p-4">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <input [(ngModel)]="filters.search" (ngModelChange)="onSearch()" class="form-input" placeholder="Buscar...">
+      <select [(ngModel)]="filters.type" (ngModelChange)="onSearch()" class="form-input">
+        <option value="">Todos los tipos</option>
+        <option value="house">Casa</option>
+        <option value="apartment">Apartamento</option>
+        <option value="land">Terreno</option>
+        <option value="commercial">Comercial</option>
+        <option value="office">Oficina</option>
+      </select>
+      <select [(ngModel)]="filters.status" (ngModelChange)="onSearch()" class="form-input">
+        <option value="">Todos los estados</option>
+        <option value="available">Disponible</option>
+        <option value="reserved">Reservada</option>
+        <option value="sold">Vendida</option>
+        <option value="rented">Alquilada</option>
+      </select>
+      <input [(ngModel)]="filters.city" (ngModelChange)="onSearch()" class="form-input" placeholder="Ciudad">
+      <input [(ngModel)]="filters.minPrice" (ngModelChange)="onSearch()" type="number" class="form-input" placeholder="Precio min">
+      <input [(ngModel)]="filters.maxPrice" (ngModelChange)="onSearch()" type="number" class="form-input" placeholder="Precio max">
+    </div>
+  </div>
+
+  <!-- View toggle + Grid -->
+  @if (loading()) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <div class="card animate-pulse">
+          <div class="h-48 bg-gray-200 rounded-lg mb-4"></div>
+          <div class="h-4 bg-gray-200 rounded mb-2"></div>
+          <div class="h-3 bg-gray-200 rounded w-2/3"></div>
+        </div>
+      }
+    </div>
+  } @else if (properties().length === 0) {
+    <div class="card text-center py-16">
+      <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+      </svg>
+      <p class="text-gray-500 font-medium">No hay propiedades</p>
+      <p class="text-gray-400 text-sm mt-1">Agrega tu primera propiedad para comenzar</p>
+      <a routerLink="/properties/new" class="btn-primary mt-4 inline-flex">Agregar propiedad</a>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (prop of properties(); track prop.id) {
+        <div class="card p-0 overflow-hidden hover:shadow-md transition-shadow">
+          <div class="relative">
+            <img [src]="primaryImage(prop)" [alt]="prop.title" class="w-full h-48 object-cover">
+            <div class="absolute top-3 left-3">
+              <app-badge [label]="statusBadge(prop.status).label" [variant]="statusBadge(prop.status).variant"/>
+            </div>
+            <div class="absolute top-3 right-3">
+              <span class="bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded-lg">{{ typLabel(prop.type) }}</span>
+            </div>
+          </div>
+          <div class="p-4">
+            <p class="text-xs text-gray-400 font-mono">{{ prop.code }}</p>
+            <h3 class="font-semibold text-gray-900 mt-1 line-clamp-1">{{ prop.title }}</h3>
+            <p class="text-gray-500 text-sm mt-1 flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              </svg>
+              {{ prop.city }}, {{ prop.state }}
+            </p>
+            <div class="flex items-center gap-4 mt-3 text-sm text-gray-500">
+              @if (prop.bedrooms) { <span>🛏 {{ prop.bedrooms }}</span> }
+              @if (prop.bathrooms) { <span>🚿 {{ prop.bathrooms }}</span> }
+              @if (prop.area) { <span>📐 {{ prop.area }}m²</span> }
+            </div>
+            <div class="flex items-center justify-between mt-4">
+              <p class="text-xl font-bold text-blue-600">{{ prop.price | currency:prop.currency:'symbol':'1.0-0' }}</p>
+              <div class="flex gap-2">
+                <a [routerLink]="['/properties', prop.id]" class="btn-secondary text-xs px-3 py-1.5">Ver</a>
+                <a [routerLink]="['/properties', prop.id, 'edit']" class="btn-secondary text-xs px-3 py-1.5">Editar</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages > 1) {
+      <div class="flex justify-center gap-2">
+        @for (page of pages; track page) {
+          <button
+            (click)="changePage(page)"
+            class="w-9 h-9 rounded-lg text-sm font-medium transition-colors"
+            [class]="page === currentPage() ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'"
+          >{{ page }}</button>
+        }
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,72 @@
+<div class="space-y-6 max-w-2xl">
+  <div class="flex items-center gap-4">
+    <a routerLink="/clients" class="text-gray-400 hover:text-gray-600">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+    </a>
+    <h1 class="text-2xl font-bold text-gray-900">{{ isEdit() ? 'Editar Cliente' : 'Nuevo Cliente' }}</h1>
+  </div>
+
+  @if (error()) {
+    <div class="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="card space-y-5">
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="form-label">Nombre *</label>
+        <input type="text" formControlName="firstName" class="form-input" placeholder="Juan">
+        @if (isInvalid('firstName')) { <p class="form-error">Requerido</p> }
+      </div>
+      <div>
+        <label class="form-label">Apellido *</label>
+        <input type="text" formControlName="lastName" class="form-input" placeholder="García">
+        @if (isInvalid('lastName')) { <p class="form-error">Requerido</p> }
+      </div>
+    </div>
+    <div>
+      <label class="form-label">Email *</label>
+      <input type="email" formControlName="email" class="form-input" placeholder="juan@gmail.com">
+      @if (isInvalid('email')) { <p class="form-error">Email inválido</p> }
+    </div>
+    <div>
+      <label class="form-label">Teléfono</label>
+      <input type="tel" formControlName="phone" class="form-input" placeholder="+591 71234567">
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="form-label">Tipo *</label>
+        <select formControlName="type" class="form-input">
+          <option value="buyer">Comprador</option>
+          <option value="seller">Vendedor</option>
+          <option value="renter">Inquilino</option>
+          <option value="investor">Inversor</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Fuente</label>
+        <select formControlName="source" class="form-input">
+          <option value="website">Sitio Web</option>
+          <option value="referral">Referido</option>
+          <option value="social">Redes Sociales</option>
+          <option value="cold_call">Llamada fría</option>
+          <option value="other">Otro</option>
+        </select>
+      </div>
+    </div>
+    <div>
+      <label class="form-label">Dirección</label>
+      <input type="text" formControlName="address" class="form-input" placeholder="Av. Principal 123">
+    </div>
+    <div>
+      <label class="form-label">Notas</label>
+      <textarea formControlName="notes" class="form-input" rows="3" placeholder="Observaciones sobre el cliente..."></textarea>
+    </div>
+    <div class="flex justify-end gap-3">
+      <a routerLink="/clients" class="btn-secondary">Cancelar</a>
+      <button type="submit" class="btn-primary flex items-center gap-2" [disabled]="saving()">
+        @if (saving()) { <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> }
+        {{ isEdit() ? 'Guardar cambios' : 'Crear cliente' }}
+      </button>
+    </div>
+  </form>
+</div>

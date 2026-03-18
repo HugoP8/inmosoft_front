@@ -1,0 +1,189 @@
+<div class="space-y-6">
+  <div class="flex items-center gap-4">
+    <a routerLink="/properties" class="text-gray-400 hover:text-gray-600">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+      </svg>
+    </a>
+    <h1 class="text-2xl font-bold text-gray-900">{{ isEdit() ? 'Editar Propiedad' : 'Nueva Propiedad' }}</h1>
+  </div>
+
+  <!-- Steps indicator -->
+  <div class="card p-4">
+    <div class="flex items-center">
+      @for (step of [1,2,3,4]; track step) {
+        <div class="flex items-center" [class]="step < 4 ? 'flex-1' : ''">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors"
+            [class]="step <= currentStep() ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'">
+            {{ step }}
+          </div>
+          @if (step < 4) {
+            <div class="flex-1 h-1 mx-2 rounded" [class]="step < currentStep() ? 'bg-blue-600' : 'bg-gray-200'"></div>
+          }
+        </div>
+      }
+    </div>
+    <div class="flex justify-between mt-2 text-xs text-gray-500">
+      <span>Información</span><span>Ubicación</span><span>Características</span><span>Finalizar</span>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <!-- Step 1: Basic Info -->
+    @if (currentStep() === 1) {
+      <div class="card space-y-4">
+        <h2 class="text-lg font-semibold text-gray-900">Información Básica</h2>
+        <div>
+          <label class="form-label">Título *</label>
+          <input type="text" formControlName="title" class="form-input" placeholder="Casa en urbanización Las Palmas">
+          @if (isInvalid('title')) { <p class="form-error">El título es requerido</p> }
+        </div>
+        <div>
+          <label class="form-label">Descripción</label>
+          <textarea formControlName="description" class="form-input" rows="4" placeholder="Describe la propiedad..."></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="form-label">Tipo *</label>
+            <select formControlName="type" class="form-input">
+              <option value="house">Casa</option>
+              <option value="apartment">Apartamento</option>
+              <option value="land">Terreno</option>
+              <option value="commercial">Comercial</option>
+              <option value="office">Oficina</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Estado *</label>
+            <select formControlName="status" class="form-input">
+              <option value="available">Disponible</option>
+              <option value="reserved">Reservada</option>
+              <option value="sold">Vendida</option>
+              <option value="rented">Alquilada</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="form-label">Precio *</label>
+            <input type="number" formControlName="price" class="form-input" placeholder="150000">
+          </div>
+          <div>
+            <label class="form-label">Moneda</label>
+            <select formControlName="currency" class="form-input">
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="BOB">BOB</option>
+              <option value="PEN">PEN</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Step 2: Location -->
+    @if (currentStep() === 2) {
+      <div class="card space-y-4">
+        <h2 class="text-lg font-semibold text-gray-900">Ubicación</h2>
+        <div>
+          <label class="form-label">Dirección *</label>
+          <input type="text" formControlName="address" class="form-input" placeholder="Calle, número, etc.">
+          @if (isInvalid('address')) { <p class="form-error">La dirección es requerida</p> }
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="form-label">Ciudad *</label>
+            <input type="text" formControlName="city" class="form-input" placeholder="La Paz">
+            @if (isInvalid('city')) { <p class="form-error">La ciudad es requerida</p> }
+          </div>
+          <div>
+            <label class="form-label">Estado/Departamento</label>
+            <input type="text" formControlName="state" class="form-input" placeholder="La Paz">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="form-label">País</label>
+            <input type="text" formControlName="country" class="form-input" placeholder="Bolivia">
+          </div>
+          <div>
+            <label class="form-label">Código Postal</label>
+            <input type="text" formControlName="zipCode" class="form-input" placeholder="0000">
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Step 3: Features -->
+    @if (currentStep() === 3) {
+      <div class="card space-y-4">
+        <h2 class="text-lg font-semibold text-gray-900">Características</h2>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="form-label">Dormitorios</label>
+            <input type="number" formControlName="bedrooms" class="form-input" min="0">
+          </div>
+          <div>
+            <label class="form-label">Baños</label>
+            <input type="number" formControlName="bathrooms" class="form-input" min="0">
+          </div>
+          <div>
+            <label class="form-label">Área (m²)</label>
+            <input type="number" formControlName="area" class="form-input" min="0">
+          </div>
+          <div>
+            <label class="form-label">Estacionamientos</label>
+            <input type="number" formControlName="parkingSpaces" class="form-input" min="0">
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Step 4: Review -->
+    @if (currentStep() === 4) {
+      <div class="card space-y-4">
+        <h2 class="text-lg font-semibold text-gray-900">Resumen</h2>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div class="space-y-2">
+            <p><span class="text-gray-500">Título:</span> <span class="font-medium">{{ form.value.title }}</span></p>
+            <p><span class="text-gray-500">Tipo:</span> <span class="font-medium">{{ form.value.type }}</span></p>
+            <p><span class="text-gray-500">Estado:</span> <span class="font-medium">{{ form.value.status }}</span></p>
+            <p><span class="text-gray-500">Precio:</span> <span class="font-medium text-blue-600">{{ form.value.price | currency:form.value.currency || 'USD':'symbol':'1.0-0' }}</span></p>
+          </div>
+          <div class="space-y-2">
+            <p><span class="text-gray-500">Ciudad:</span> <span class="font-medium">{{ form.value.city }}</span></p>
+            <p><span class="text-gray-500">Dirección:</span> <span class="font-medium">{{ form.value.address }}</span></p>
+            <p><span class="text-gray-500">Área:</span> <span class="font-medium">{{ form.value.area }}m²</span></p>
+            <p><span class="text-gray-500">Dormitorios:</span> <span class="font-medium">{{ form.value.bedrooms }}</span></p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Navigation buttons -->
+    <div class="flex justify-between mt-6">
+      <button type="button" (click)="prevStep()" class="btn-secondary" [class.invisible]="currentStep() === 1">
+        ← Anterior
+      </button>
+      @if (currentStep() < totalSteps) {
+        <button type="button" (click)="nextStep()" class="btn-primary">
+          Siguiente →
+        </button>
+      } @else {
+        <button type="submit" class="btn-primary flex items-center gap-2" [disabled]="saving()">
+          @if (saving()) {
+            <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+          }
+          {{ isEdit() ? 'Guardar cambios' : 'Crear propiedad' }}
+        </button>
+      }
+    </div>
+  </form>
+</div>

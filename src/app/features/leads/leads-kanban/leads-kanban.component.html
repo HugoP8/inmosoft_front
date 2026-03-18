@@ -1,0 +1,84 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Pipeline de Leads</h1>
+      <p class="text-gray-500 text-sm mt-1">Gestiona tus oportunidades de negocio</p>
+    </div>
+    <a routerLink="/leads/new" class="btn-primary flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      Nuevo Lead
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center py-20">
+      <svg class="animate-spin w-8 h-8 text-blue-600" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+      </svg>
+    </div>
+  } @else {
+    <!-- Kanban Board -->
+    <div class="flex gap-4 overflow-x-auto pb-4">
+      @for (status of ALL_STATUSES; track status) {
+        <div class="flex-shrink-0 w-72">
+          <!-- Column header -->
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full" [class]="STATUS_COLORS[status].replace('border-t-','bg-')"></div>
+              <h3 class="font-semibold text-gray-700 text-sm">{{ STATUS_LABELS[status] }}</h3>
+            </div>
+            <span class="bg-gray-200 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">{{ countByStatus(status) }}</span>
+          </div>
+
+          <!-- Cards container -->
+          <div class="bg-gray-100 rounded-xl p-2 min-h-96 space-y-2">
+            @for (lead of getLeadsByStatus(status); track lead.id) {
+              <a [routerLink]="['/leads', lead.id]"
+                class="block bg-white rounded-lg p-3 shadow-sm border border-transparent hover:border-blue-200 hover:shadow-md transition-all cursor-pointer border-t-4"
+                [class]="STATUS_COLORS[lead.status]"
+              >
+                <!-- Lead title -->
+                <h4 class="font-medium text-gray-900 text-sm line-clamp-2">{{ lead.title }}</h4>
+
+                <!-- Client name -->
+                <div class="flex items-center gap-1.5 mt-2">
+                  <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                  </svg>
+                  <span class="text-xs text-gray-500 truncate">{{ clientName(lead) }}</span>
+                </div>
+
+                <!-- Budget -->
+                @if (lead.budget) {
+                  <div class="flex items-center gap-1.5 mt-1">
+                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span class="text-xs text-gray-600 font-medium">${{ lead.budget | number:'1.0-0' }}</span>
+                  </div>
+                }
+
+                <!-- Footer -->
+                <div class="flex items-center justify-between mt-3">
+                  <app-badge [label]="PRIORITY_BADGE[lead.priority]?.label" [variant]="PRIORITY_BADGE[lead.priority]?.variant"/>
+                  @if (lead.assignedTo) {
+                    <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold" [title]="lead.assignedTo.firstName + ' ' + lead.assignedTo.lastName">
+                      {{ agentInitials(lead) }}
+                    </div>
+                  }
+                </div>
+              </a>
+            }
+
+            @if (countByStatus(status) === 0) {
+              <div class="text-center py-8 text-gray-400">
+                <p class="text-xs">Sin leads aquí</p>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

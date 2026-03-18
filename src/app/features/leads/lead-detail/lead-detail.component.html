@@ -1,0 +1,107 @@
+@if (loading()) {
+  <div class="flex justify-center py-20"><svg class="animate-spin w-8 h-8 text-blue-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></div>
+}
+@if (!loading() && lead()) {
+  <div class="space-y-6">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <a routerLink="/leads" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        </a>
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">{{ lead()!.title }}</h1>
+          <p class="text-gray-500 text-sm mt-1">Creado {{ lead()!.createdAt | timeAgo }}</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <app-badge [label]="STATUS_LABELS[lead()!.status]" [variant]="statusVariant(lead()!.status)"/>
+        <a [routerLink]="['/leads', lead()!.id, 'edit']" class="btn-secondary">Editar</a>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Main content -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Status pipeline -->
+        <div class="card">
+          <h3 class="font-semibold text-gray-900 mb-4">Estado del Pipeline</h3>
+          <div class="flex items-center gap-1">
+            @for (s of ['new','contacted','qualified','proposal','negotiation','closed_won','closed_lost']; track s) {
+              <div class="flex-1 h-2 rounded-full" [class]="lead()!.status === s ? 'bg-blue-500' : 'bg-gray-200'"></div>
+            }
+          </div>
+          <p class="text-center text-sm text-gray-600 mt-2">{{ STATUS_LABELS[lead()!.status] }}</p>
+        </div>
+
+        <!-- Notes -->
+        <div class="card">
+          <h3 class="font-semibold text-gray-900 mb-3">Notas</h3>
+          <p class="text-gray-600 text-sm">{{ lead()!.notes || 'Sin notas' }}</p>
+        </div>
+      </div>
+
+      <!-- Side panel -->
+      <div class="space-y-6">
+        <!-- Lead info -->
+        <div class="card space-y-4">
+          <h3 class="font-semibold text-gray-900">Información</h3>
+          @if (lead()!.budget) {
+            <div>
+              <p class="text-xs text-gray-500">Presupuesto</p>
+              <p class="font-semibold text-blue-600 text-lg">{{ lead()!.budget | currency:'USD':'symbol':'1.0-0' }}</p>
+            </div>
+          }
+          <div>
+            <p class="text-xs text-gray-500">Prioridad</p>
+            <p class="font-medium capitalize">{{ lead()!.priority }}</p>
+          </div>
+          @if (lead()!.source) {
+            <div>
+              <p class="text-xs text-gray-500">Fuente</p>
+              <p class="font-medium">{{ lead()!.source }}</p>
+            </div>
+          }
+          @if (lead()!.lastActivityAt) {
+            <div>
+              <p class="text-xs text-gray-500">Última actividad</p>
+              <p class="font-medium">{{ lead()!.lastActivityAt | timeAgo }}</p>
+            </div>
+          }
+        </div>
+
+        <!-- Client -->
+        @if (lead()!.client) {
+          <div class="card">
+            <h3 class="font-semibold text-gray-900 mb-3">Cliente</h3>
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
+                {{ lead()!.client.firstName[0] }}{{ lead()!.client.lastName[0] }}
+              </div>
+              <div>
+                <p class="font-medium text-gray-900">{{ lead()!.client.firstName }} {{ lead()!.client.lastName }}</p>
+                <p class="text-gray-500 text-sm">{{ lead()!.client.email }}</p>
+                <p class="text-gray-400 text-sm">{{ lead()!.client.phone }}</p>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Assigned agent -->
+        @if (lead()!.assignedTo) {
+          <div class="card">
+            <h3 class="font-semibold text-gray-900 mb-3">Agente Asignado</h3>
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-bold">
+                {{ lead()!.assignedTo!.firstName[0] }}{{ lead()!.assignedTo!.lastName[0] }}
+              </div>
+              <div>
+                <p class="font-medium text-gray-900">{{ lead()!.assignedTo!.firstName }} {{ lead()!.assignedTo!.lastName }}</p>
+                <p class="text-gray-500 text-sm">{{ lead()!.assignedTo!.email }}</p>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

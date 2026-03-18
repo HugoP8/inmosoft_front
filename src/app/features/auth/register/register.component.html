@@ -1,0 +1,63 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-800 to-blue-900 flex items-center justify-center p-4">
+  <div class="w-full max-w-md">
+    <div class="bg-white rounded-2xl shadow-2xl p-8">
+      <div class="text-center mb-8">
+        <div class="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-900">Crear cuenta</h1>
+        <p class="text-gray-500 text-sm mt-1">Regista tu empresa en InmoSoft</p>
+      </div>
+
+      @if (error()) {
+        <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{{ error() }}</div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+        <div>
+          <label class="form-label">Nombre de la empresa</label>
+          <input type="text" formControlName="tenantName" class="form-input" placeholder="Inmobiliaria ABC">
+          @if (isInvalid('tenantName')) { <p class="form-error">Campo requerido</p> }
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="form-label">Nombre</label>
+            <input type="text" formControlName="firstName" class="form-input" placeholder="Juan">
+            @if (isInvalid('firstName')) { <p class="form-error">Requerido</p> }
+          </div>
+          <div>
+            <label class="form-label">Apellido</label>
+            <input type="text" formControlName="lastName" class="form-input" placeholder="García">
+            @if (isInvalid('lastName')) { <p class="form-error">Requerido</p> }
+          </div>
+        </div>
+        <div>
+          <label class="form-label">Correo electrónico</label>
+          <input type="email" formControlName="email" class="form-input" placeholder="juan@empresa.com">
+          @if (isInvalid('email')) { <p class="form-error">Correo inválido</p> }
+        </div>
+        <div>
+          <label class="form-label">Contraseña</label>
+          <input type="password" formControlName="password" class="form-input" placeholder="Mínimo 8 caracteres">
+          @if (isInvalid('password')) { <p class="form-error">Mínimo 8 caracteres</p> }
+        </div>
+        <button type="submit" class="btn-primary w-full justify-center flex items-center gap-2 mt-2" [disabled]="loading()">
+          @if (loading()) {
+            <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+          }
+          Crear cuenta
+        </button>
+      </form>
+
+      <p class="text-center text-sm text-gray-500 mt-6">
+        ¿Ya tienes cuenta?
+        <a routerLink="/auth/login" class="text-blue-600 hover:text-blue-700 font-medium">Iniciar sesión</a>
+      </p>
+    </div>
+  </div>
+</div>

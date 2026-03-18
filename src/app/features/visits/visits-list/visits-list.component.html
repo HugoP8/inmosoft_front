@@ -1,0 +1,77 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Visitas</h1>
+      <p class="text-gray-500 text-sm mt-1">{{ total() }} visitas registradas</p>
+    </div>
+    <a routerLink="/visits/new" class="btn-primary flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      Nueva Visita
+    </a>
+  </div>
+
+  <!-- Filter -->
+  <div class="card p-4">
+    <select [(ngModel)]="filters.status" (ngModelChange)="load()" class="form-input w-48">
+      <option value="">Todos los estados</option>
+      <option value="scheduled">Programadas</option>
+      <option value="completed">Completadas</option>
+      <option value="cancelled">Canceladas</option>
+      <option value="no_show">No asistió</option>
+    </select>
+  </div>
+
+  <div class="card p-0 overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 border-b border-gray-200">
+        <tr>
+          <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Fecha y Hora</th>
+          <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Propiedad</th>
+          <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Cliente</th>
+          <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Agente</th>
+          <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Estado</th>
+          <th class="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        @if (loading()) {
+          @for (i of [1,2,3,4,5]; track i) {
+            <tr>@for (j of [1,2,3,4,5,6]; track j){ <td class="px-6 py-4"><div class="h-4 bg-gray-200 rounded animate-pulse"></div></td> }</tr>
+          }
+        } @else if (visits().length === 0) {
+          <tr><td colspan="6" class="text-center py-12 text-gray-400"><p class="font-medium">No hay visitas</p></td></tr>
+        } @else {
+          @for (visit of visits(); track visit.id) {
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4">
+                <p class="font-medium text-gray-900">{{ visit.scheduledAt | date:'dd/MM/yyyy' }}</p>
+                <p class="text-gray-400 text-xs">{{ visit.scheduledAt | date:'HH:mm' }} hs</p>
+              </td>
+              <td class="px-6 py-4">
+                <p class="text-gray-700 line-clamp-1">{{ visit.property?.title || 'N/A' }}</p>
+                <p class="text-gray-400 text-xs">{{ visit.property?.city }}</p>
+              </td>
+              <td class="px-6 py-4 text-gray-600">
+                {{ visit.lead?.client?.firstName }} {{ visit.lead?.client?.lastName }}
+              </td>
+              <td class="px-6 py-4 text-gray-600">
+                {{ visit.agent?.firstName }} {{ visit.agent?.lastName }}
+              </td>
+              <td class="px-6 py-4">
+                <app-badge [label]="statusBadge(visit.status).label" [variant]="statusBadge(visit.status).variant"/>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex justify-end gap-2">
+                  @if (visit.status === 'scheduled') {
+                    <button (click)="complete(visit.id)" class="text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded-lg hover:bg-green-200 transition-colors">Completar</button>
+                    <button (click)="cancel(visit.id)" class="text-xs bg-red-100 text-red-700 px-3 py-1.5 rounded-lg hover:bg-red-200 transition-colors">Cancelar</button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
